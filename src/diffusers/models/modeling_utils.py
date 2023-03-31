@@ -142,10 +142,8 @@ def _load_state_dict_into_model(model_to_load, state_dict):
 class ModelMixin(torch.nn.Module):
     r"""
     Base class for all models.
-
     [`ModelMixin`] takes care of storing the configuration of the models and handles methods for loading, downloading
     and saving models.
-
         - **config_name** ([`str`]) -- A filename under which the model should be stored when calling
           [`~models.ModelMixin.save_pretrained`].
     """
@@ -160,7 +158,6 @@ class ModelMixin(torch.nn.Module):
     def is_gradient_checkpointing(self) -> bool:
         """
         Whether gradient checkpointing is activated for this model or not.
-
         Note that in other frameworks this feature can be referred to as "activation checkpointing" or "checkpoint
         activations".
         """
@@ -169,7 +166,6 @@ class ModelMixin(torch.nn.Module):
     def enable_gradient_checkpointing(self):
         """
         Activates gradient checkpointing for the current model.
-
         Note that in other frameworks this feature can be referred to as "activation checkpointing" or "checkpoint
         activations".
         """
@@ -180,7 +176,6 @@ class ModelMixin(torch.nn.Module):
     def disable_gradient_checkpointing(self):
         """
         Deactivates gradient checkpointing for the current model.
-
         Note that in other frameworks this feature can be referred to as "activation checkpointing" or "checkpoint
         activations".
         """
@@ -207,26 +202,20 @@ class ModelMixin(torch.nn.Module):
     def enable_xformers_memory_efficient_attention(self, attention_op: Optional[Callable] = None):
         r"""
         Enable memory efficient attention as implemented in xformers.
-
         When this option is enabled, you should observe lower GPU memory usage and a potential speed up at inference
         time. Speed up at training time is not guaranteed.
-
         Warning: When Memory Efficient Attention and Sliced attention are both enabled, the Memory Efficient Attention
         is used.
-
         Parameters:
             attention_op (`Callable`, *optional*):
                 Override the default `None` operator for use as `op` argument to the
                 [`memory_efficient_attention()`](https://facebookresearch.github.io/xformers/components/ops.html#xformers.ops.memory_efficient_attention)
                 function of xFormers.
-
         Examples:
-
         ```py
         >>> import torch
         >>> from diffusers import UNet2DConditionModel
         >>> from xformers.ops import MemoryEfficientAttentionFlashAttentionOp
-
         >>> model = UNet2DConditionModel.from_pretrained(
         ...     "stabilityai/stable-diffusion-2-1", subfolder="unet", torch_dtype=torch.float16
         ... )
@@ -253,7 +242,6 @@ class ModelMixin(torch.nn.Module):
         """
         Save a model and its configuration file to a directory, so that it can be re-loaded using the
         `[`~models.ModelMixin.from_pretrained`]` class method.
-
         Arguments:
             save_directory (`str` or `os.PathLike`):
                 Directory to which to save. Will be created if it doesn't exist.
@@ -306,26 +294,20 @@ class ModelMixin(torch.nn.Module):
     def from_pretrained(cls, pretrained_model_name_or_path: Optional[Union[str, os.PathLike]], **kwargs):
         r"""
         Instantiate a pretrained pytorch model from a pre-trained model configuration.
-
         The model is set in evaluation mode by default using `model.eval()` (Dropout modules are deactivated). To train
         the model, you should first set it back in training mode with `model.train()`.
-
         The warning *Weights from XXX not initialized from pretrained model* means that the weights of XXX do not come
         pretrained with the rest of the model. It is up to you to train those weights with a downstream fine-tuning
         task.
-
         The warning *Weights from XXX not used in YYY* means that the layer XXX is not used by YYY, therefore those
         weights are discarded.
-
         Parameters:
             pretrained_model_name_or_path (`str` or `os.PathLike`, *optional*):
                 Can be either:
-
                     - A string, the *model id* of a pretrained model hosted inside a model repo on huggingface.co.
                       Valid model ids should have an organization name, like `google/ddpm-celebahq-256`.
                     - A path to a *directory* containing model weights saved using [`~ModelMixin.save_config`], e.g.,
                       `./my_model_directory/`.
-
             cache_dir (`Union[str, os.PathLike]`, *optional*):
                 Path to a directory in which a downloaded pretrained model configuration should be cached if the
                 standard cache should not be used.
@@ -357,7 +339,6 @@ class ModelMixin(torch.nn.Module):
             subfolder (`str`, *optional*, defaults to `""`):
                 In case the relevant files are located inside a subfolder of the model repo (either remote in
                 huggingface.co or downloaded locally), you can specify the folder name here.
-
             mirror (`str`, *optional*):
                 Mirror source to accelerate downloads in China. If you are from China and have an accessibility
                 problem, you can set this option to resolve it. Note that we do not guarantee the timeliness or safety.
@@ -366,7 +347,6 @@ class ModelMixin(torch.nn.Module):
                 A map that specifies where each submodule should go. It doesn't need to be refined to each
                 parameter/buffer name, once a given module name is inside, every submodule of it will be sent to the
                 same device.
-
                 To have Accelerate compute the most optimized `device_map` automatically, set `device_map="auto"`. For
                 more information about each option see [designing a device
                 map](https://hf.co/docs/accelerate/main/en/usage_guides/big_modeling#designing-a-device-map).
@@ -382,21 +362,14 @@ class ModelMixin(torch.nn.Module):
                 If set to `True`, the pipeline will forcibly load the models from `safetensors` weights. If set to
                 `None` (the default). The pipeline will load using `safetensors` if safetensors weights are available
                 *and* if `safetensors` is installed. If the to `False` the pipeline will *not* use `safetensors`.
-
         <Tip>
-
          It is required to be logged in (`huggingface-cli login`) when you want to use private or [gated
          models](https://huggingface.co/docs/hub/models-gated#gated-models).
-
         </Tip>
-
         <Tip>
-
         Activate the special ["offline-mode"](https://huggingface.co/diffusers/installation.html#offline-mode) to use
         this method in a firewalled environment.
-
         </Tip>
-
         """
         cache_dir = kwargs.pop("cache_dir", DIFFUSERS_CACHE)
         ignore_mismatched_sizes = kwargs.pop("ignore_mismatched_sizes", False)
@@ -565,13 +538,8 @@ class ModelMixin(torch.nn.Module):
                             " those weights or else make sure your checkpoint file is correct."
                         )
 
-                    unexpected_keys = set(state_dict.keys()) - set(model.state_dict().keys())
                     empty_state_dict = model.state_dict()
                     for param_name, param in state_dict.items():
-
-                        if param_name in unexpected_keys:
-                            continue
-
                         accepts_dtype = "dtype" in set(
                             inspect.signature(set_module_tensor_to_device).parameters.keys()
                         )
@@ -756,14 +724,11 @@ class ModelMixin(torch.nn.Module):
     def num_parameters(self, only_trainable: bool = False, exclude_embeddings: bool = False) -> int:
         """
         Get number of (optionally, trainable or non-embeddings) parameters in the module.
-
         Args:
             only_trainable (`bool`, *optional*, defaults to `False`):
                 Whether or not to return only the number of trainable parameters
-
             exclude_embeddings (`bool`, *optional*, defaults to `False`):
                 Whether or not to return only the number of non-embeddings parameters
-
         Returns:
             `int`: The number of parameters.
         """
